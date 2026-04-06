@@ -1,1 +1,29 @@
-<p>view-employee works!</p>
+<div class="container mt-4">
+  <a routerLink="/employees" class="btn btn-secondary mb-3">Back</a>
+
+  <div *ngIf="loading">Loading employee details...</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <div class="card shadow p-4" *ngIf="employee">
+    <div class="text-center mb-4">
+      <img
+        [src]="employee.employee_photo || 'https://via.placeholder.com/180'"
+        alt="Employee Photo"
+        width="180"
+        height="180"
+        class="rounded-circle"
+      />
+    </div>
+
+    <h2 class="mb-3">{{ employee.first_name }} {{ employee.last_name }}</h2>
+
+    <div class="row">
+      <div class="col-md-6 mb-2"><strong>Email:</strong> {{ employee.email }}</div>
+      <div class="col-md-6 mb-2"><strong>Gender:</strong> {{ employee.gender }}</div>
+      <div class="col-md-6 mb-2"><strong>Designation:</strong> {{ employee.designation }}</div>
+      <div class="col-md-6 mb-2"><strong>Department:</strong> {{ employee.department }}</div>
+      <div class="col-md-6 mb-2"><strong>Salary:</strong> {{ employee.salary | currency }}</div>
+      <div class="col-md-6 mb-2"><strong>Date of Joining:</strong> {{ employee.date_of_joining | date }}</div>
+    </div>
+  </div>
+</div>

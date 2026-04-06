@@ -1,9 +1,101 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EmployeeService } from '../../services/employee';
 
 @Component({
   selector: 'app-edit-employee',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './edit-employee.html',
-  styleUrl: './edit-employee.css',
+  styleUrl: './edit-employee.css'
 })
-export class EditEmployee {}
+export class EditEmployeeComponent implements OnInit {
+  employeeForm: FormGroup;
+  employeeId = '';
+  loading = false;
+  errorMessage = '';
+  successMessage = '';
+
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private employeeService: EmployeeService
+  ) {
+    this.employeeForm = this.fb.group({
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      gender: ['', Validators.required],
+      designation: ['', Validators.required],
+      salary: [1000, [Validators.required, Validators.min(1000)]],
+      date_of_joining: ['', Validators.required],
+      department: ['', Validators.required],
+      employee_photo: ['']
+    });
+  }
+
+  get f() {
+    return this.employeeForm.controls;
+  }
+
+  ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.employeeId = id;
+      this.loadEmployee(id);
+    }
+  }
+
+  async loadEmployee(id: string) {
+    this.loading = true;
+    try {
+      const result = await this.employeeService.getEmployeeById(id);
+      const emp = result?.data?.getEmployeeById;
+      if (emp) {
+        this.employeeForm.patchValue({
+          ...emp,
+          date_of_joining: emp.date_of_joining?.substring(0, 10)
+        });
+      }
+    } catch (error) {
+      this.errorMessage = 'Failed to load employee.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async onSubmit() {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
+      return;
+    }
+
+    this.loading = true;
+    try {
+      const payload = {
+        ...this.employeeForm.value,
+        salary: Number(this.employeeForm.value.salary)
+      };
+
+      const result = await this.employeeService.updateEmployee(this.employeeId, payload);
+
+      if (result.errors) {
+        this.errorMessage = result.errors[0]?.message || 'Update failed.';
+        return;
+      }
+
+      this.successMessage = 'Employee updated successfully.';
+      setTimeout(() => this.router.navigate(['/employees']), 1200);
+    } catch (error) {
+      this.errorMessage = 'Update failed.';
+    } finally {
+      this.loading = false;
+    }
+  }
+}

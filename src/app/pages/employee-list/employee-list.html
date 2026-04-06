@@ -1,1 +1,60 @@
-<p>employee-list works!</p>
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Employee List</h2>
+    <div class="d-flex gap-2">
+      <a routerLink="/employees/add" class="btn btn-success">Add Employee</a>
+      <a routerLink="/search" class="btn btn-primary">Search</a>
+      <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="loading" class="text-center py-4">Loading employees...</div>
+
+  <div class="table-responsive" *ngIf="!loading">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Photo</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Email</th>
+          <th>Designation</th>
+          <th>Department</th>
+          <th>Salary</th>
+          <th style="min-width: 220px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of employees">
+          <td>
+            <img
+              [src]="emp.employee_photo || 'https://via.placeholder.com/60'"
+              alt="Employee Photo"
+              width="60"
+              height="60"
+              class="rounded object-fit-cover"
+            />
+          </td>
+          <td>{{ emp.first_name }}</td>
+          <td>{{ emp.last_name }}</td>
+          <td>{{ emp.email }}</td>
+          <td>{{ emp.designation }}</td>
+          <td>{{ emp.department }}</td>
+          <td>{{ emp.salary | currency }}</td>
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+              <a [routerLink]="['/employees', emp.id]" class="btn btn-sm btn-info text-white">View</a>
+              <a [routerLink]="['/employees/edit', emp.id]" class="btn btn-sm btn-warning">Edit</a>
+              <button class="btn btn-sm btn-danger" (click)="deleteEmployee(emp.id)">Delete</button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="employees.length === 0">
+          <td colspan="8" class="text-center">No employees found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

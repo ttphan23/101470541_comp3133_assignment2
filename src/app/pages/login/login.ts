@@ -2,7 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { GraphqlService } from '../services/graphql';
+import { GraphqlService } from '../../services/graphql';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
@@ -17,9 +18,10 @@ export class LoginComponent {
   errorMessage = '';
 
   constructor(
-    private fb: FormBuilder,
-    private graphqlService: GraphqlService,
-    private router: Router
+  private fb: FormBuilder,
+  private graphqlService: GraphqlService,
+  private router: Router,
+  private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
       identifier: ['', [Validators.required]], // username or email
@@ -66,7 +68,7 @@ export class LoginComponent {
       const token = result?.data?.login?.token;
 
       if (token) {
-        localStorage.setItem('token', token);
+        this.authService.setToken(token);
         this.router.navigate(['/employees']);
       } else {
         this.errorMessage = 'Invalid login response.';

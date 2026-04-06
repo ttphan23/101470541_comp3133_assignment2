@@ -1,1 +1,79 @@
-<p>add-employee works!</p>
+<div class="container mt-4">
+  <div class="card shadow p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="mb-0">Add Employee</h2>
+      <a routerLink="/employees" class="btn btn-secondary">Back</a>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">First Name</label>
+          <input class="form-control" formControlName="first_name" />
+          <div class="text-danger" *ngIf="f['first_name'].touched && f['first_name'].invalid">First name is required.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Last Name</label>
+          <input class="form-control" formControlName="last_name" />
+          <div class="text-danger" *ngIf="f['last_name'].touched && f['last_name'].invalid">Last name is required.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input class="form-control" formControlName="email" />
+          <div class="text-danger" *ngIf="f['email'].touched && f['email'].errors?.['required']">Email is required.</div>
+          <div class="text-danger" *ngIf="f['email'].touched && f['email'].errors?.['email']">Enter a valid email.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Gender</label>
+          <select class="form-select" formControlName="gender">
+            <option value="">Select gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+          <div class="text-danger" *ngIf="f['gender'].touched && f['gender'].invalid">Gender is required.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Designation</label>
+          <input class="form-control" formControlName="designation" />
+          <div class="text-danger" *ngIf="f['designation'].touched && f['designation'].invalid">Designation is required.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Department</label>
+          <input class="form-control" formControlName="department" />
+          <div class="text-danger" *ngIf="f['department'].touched && f['department'].invalid">Department is required.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Salary</label>
+          <input type="number" class="form-control" formControlName="salary" />
+          <div class="text-danger" *ngIf="f['salary'].touched && f['salary'].errors?.['required']">Salary is required.</div>
+          <div class="text-danger" *ngIf="f['salary'].touched && f['salary'].errors?.['min']">Salary must be at least 1000.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date of Joining</label>
+          <input type="date" class="form-control" formControlName="date_of_joining" />
+          <div class="text-danger" *ngIf="f['date_of_joining'].touched && f['date_of_joining'].invalid">Date of joining is required.</div>
+        </div>
+
+        <div class="col-12 mb-3">
+          <label class="form-label">Employee Photo URL</label>
+          <input class="form-control" formControlName="employee_photo" placeholder="https://..." />
+        </div>
+      </div>
+
+      <button class="btn btn-success" type="submit" [disabled]="loading">
+        {{ loading ? 'Saving...' : 'Add Employee' }}
+      </button>
+    </form>
+  </div>
+</div>
