@@ -45,9 +45,9 @@
           <td>{{ emp.salary | currency }}</td>
           <td>
             <div class="d-flex gap-2 flex-wrap">
-              <a [routerLink]="['/employees', emp.id]" class="btn btn-sm btn-info text-white">View</a>
-              <a [routerLink]="['/employees/edit', emp.id]" class="btn btn-sm btn-warning">Edit</a>
-              <button class="btn btn-sm btn-danger" (click)="deleteEmployee(emp.id)">Delete</button>
+              <a [routerLink]="['/employees', emp._id]" class="btn btn-sm btn-info text-white">View</a>
+              <a [routerLink]="['/employees/edit', emp._id]" class="btn btn-sm btn-warning">Edit</a>
+              <button class="btn btn-sm btn-danger" (click)="deleteEmployee(emp._id)">Delete</button>
             </div>
           </td>
         </tr>

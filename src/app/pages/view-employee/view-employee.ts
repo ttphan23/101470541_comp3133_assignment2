@@ -29,7 +29,7 @@ export class ViewEmployeeComponent implements OnInit {
     this.loading = true;
     try {
       const result = await this.employeeService.getEmployeeById(id);
-      this.employee = result?.data?.getEmployeeById;
+      this.employee = result?.data?.searchEmployeeByEid?.employee;
     } catch (error) {
       this.errorMessage = 'Failed to load employee details.';
     } finally {

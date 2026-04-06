@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { GraphqlService } from '../services/graphql';
+import { GraphqlService } from '../../services/graphql';
 
 @Component({
   selector: 'app-signup',
@@ -41,19 +41,26 @@ export class SignupComponent {
     this.loading = true;
 
     const mutation = `
-      mutation Signup($username: String!, $email: String!, $password: String!) {
-        signup(username: $username, email: $email, password: $password) {
-          id
-          username
-          email
+      mutation Signup($input: JSON!) {
+        signup(input: $input) {
+          success
+          message
+          token
+          user {
+            _id
+            username
+            email
+          }
         }
       }
     `;
 
     const variables = {
-      username: this.signupForm.value.username,
-      email: this.signupForm.value.email,
-      password: this.signupForm.value.password
+      input: {
+        username: this.signupForm.value.username,
+        email: this.signupForm.value.email,
+        password: this.signupForm.value.password
+      }
     };
 
     try {
@@ -61,15 +68,17 @@ export class SignupComponent {
 
       if (result.errors) {
         this.errorMessage = result.errors[0]?.message || 'Signup failed.';
-      } else {
-        this.successMessage = 'Signup successful. Redirecting to login...';
-
+      } else if (result?.data?.signup?.success) {
+        this.successMessage = result.data.signup.message || 'Signup successful. Redirecting to login...';
         setTimeout(() => {
           this.router.navigate(['/login']);
         }, 1500);
+      } else {
+        this.errorMessage = result?.data?.signup?.message || 'Signup failed.';
       }
     } catch (error: any) {
       this.errorMessage = 'Something went wrong. Please try again.';
+      console.error(error);
     } finally {
       this.loading = false;
     }

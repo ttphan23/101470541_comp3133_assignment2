@@ -9,7 +9,7 @@ import { EmployeeService } from '../../services/employee';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './edit-employee.html',
-  styleUrl: './edit-employee.css'
+  styleUrls: ['./edit-employee.css']
 })
 export class EditEmployeeComponent implements OnInit {
   employeeForm: FormGroup;
@@ -49,11 +49,14 @@ export class EditEmployeeComponent implements OnInit {
     }
   }
 
-  async loadEmployee(id: string) {
+  async loadEmployee(id: string): Promise<void> {
     this.loading = true;
+    this.errorMessage = '';
+
     try {
       const result = await this.employeeService.getEmployeeById(id);
-      const emp = result?.data?.getEmployeeById;
+      const emp = result?.data?.searchEmployeeByEid?.employee;
+
       if (emp) {
         this.employeeForm.patchValue({
           ...emp,
@@ -67,7 +70,7 @@ export class EditEmployeeComponent implements OnInit {
     }
   }
 
-  async onSubmit() {
+  async onSubmit(): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -77,23 +80,30 @@ export class EditEmployeeComponent implements OnInit {
     }
 
     this.loading = true;
+
     try {
       const payload = {
         ...this.employeeForm.value,
         salary: Number(this.employeeForm.value.salary)
       };
 
-      const result = await this.employeeService.updateEmployee(this.employeeId, payload);
+      const result = await this.employeeService.updateEmployeeByEid(this.employeeId, payload);
 
-      if (result.errors) {
+      if (result?.errors) {
         this.errorMessage = result.errors[0]?.message || 'Update failed.';
         return;
       }
 
-      this.successMessage = 'Employee updated successfully.';
-      setTimeout(() => this.router.navigate(['/employees']), 1200);
+      if (result?.data?.updateEmployeeByEid?.success) {
+        this.successMessage =
+          result.data.updateEmployeeByEid.message || 'Employee updated successfully.';
+        setTimeout(() => this.router.navigate(['/employees']), 1200);
+      } else {
+        this.errorMessage =
+          result?.data?.updateEmployeeByEid?.message || 'Update failed.';
+      }
     } catch (error) {
-      this.errorMessage = 'Update failed.';
+      this.errorMessage = 'Failed to update employee.';
     } finally {
       this.loading = false;
     }

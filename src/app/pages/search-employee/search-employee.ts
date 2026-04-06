@@ -33,7 +33,7 @@ export class SearchEmployeeComponent {
     try {
       const { department, designation } = this.searchForm.value;
       const result = await this.employeeService.searchEmployees(department || null, designation || null);
-      this.employees = result?.data?.searchEmployees || [];
+      this.employees = result?.data?.searchEmployeeByDesignationOrDepartment?.employees || [];
     } catch (error) {
       this.errorMessage = 'Search failed.';
     } finally {

@@ -18,13 +18,13 @@ export class LoginComponent {
   errorMessage = '';
 
   constructor(
-  private fb: FormBuilder,
-  private graphqlService: GraphqlService,
-  private router: Router,
-  private authService: AuthService
+    private fb: FormBuilder,
+    private graphqlService: GraphqlService,
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loginForm = this.fb.group({
-      identifier: ['', [Validators.required]], // username or email
+      identifier: ['', [Validators.required]],
       password: ['', [Validators.required]]
     });
   }
@@ -39,12 +39,14 @@ export class LoginComponent {
 
     this.loading = true;
 
-    const mutation = `
-      mutation Login($usernameOrEmail: String!, $password: String!) {
-        login(usernameOrEmail: $usernameOrEmail, password: $password) {
+    const query = `
+      query Login($input: JSON!) {
+        login(input: $input) {
+          success
+          message
           token
           user {
-            id
+            _id
             username
             email
           }
@@ -52,26 +54,31 @@ export class LoginComponent {
       }
     `;
 
+    const value = this.loginForm.value.identifier;
+
     const variables = {
-      usernameOrEmail: this.loginForm.value.identifier,
-      password: this.loginForm.value.password
+      input: {
+        username: value,
+        password: this.loginForm.value.password
+      }
     };
 
     try {
-      const result = await this.graphqlService.request(mutation, variables);
+      const result = await this.graphqlService.request(query, variables);
 
       if (result.errors) {
         this.errorMessage = result.errors[0]?.message || 'Login failed.';
         return;
       }
 
-      const token = result?.data?.login?.token;
+      const loginData = result?.data?.login;
+      const token = loginData?.token;
 
-      if (token) {
+      if (loginData?.success && token) {
         this.authService.setToken(token);
         this.router.navigate(['/employees']);
       } else {
-        this.errorMessage = 'Invalid login response.';
+        this.errorMessage = loginData?.message || 'Invalid login response.';
       }
     } catch (error: any) {
       this.errorMessage = 'Something went wrong. Please try again.';

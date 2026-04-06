@@ -11,136 +11,142 @@ export class EmployeeService {
     const query = `
       query GetAllEmployees {
         getAllEmployees {
-          id
-          first_name
-          last_name
-          email
-          gender
-          designation
-          salary
-          date_of_joining
-          department
-          employee_photo
+          success
+          message
+          employees {
+            _id
+            first_name
+            last_name
+            email
+            gender
+            designation
+            salary
+            date_of_joining
+            department
+            employee_photo
+            created_at
+            updated_at
+          }
         }
       }
     `;
     return this.graphqlService.request(query);
   }
 
-  getEmployeeById(id: string) {
+  getEmployeeById(eid: string) {
     const query = `
-      query GetEmployeeById($id: ID!) {
-        getEmployeeById(id: $id) {
-          id
-          first_name
-          last_name
-          email
-          gender
-          designation
-          salary
-          date_of_joining
-          department
-          employee_photo
+      query SearchEmployeeByEid($eid: ID!) {
+        searchEmployeeByEid(eid: $eid) {
+          success
+          message
+          employee {
+            _id
+            first_name
+            last_name
+            email
+            gender
+            designation
+            salary
+            date_of_joining
+            department
+            employee_photo
+            created_at
+            updated_at
+          }
         }
       }
     `;
-    return this.graphqlService.request(query, { id });
+    return this.graphqlService.request(query, { eid });
   }
 
   addEmployee(employee: any) {
     const mutation = `
-      mutation AddEmployee(
-        $first_name: String!,
-        $last_name: String!,
-        $email: String!,
-        $gender: String!,
-        $designation: String!,
-        $salary: Float!,
-        $date_of_joining: String!,
-        $department: String!,
-        $employee_photo: String
-      ) {
-        addEmployee(
-          first_name: $first_name,
-          last_name: $last_name,
-          email: $email,
-          gender: $gender,
-          designation: $designation,
-          salary: $salary,
-          date_of_joining: $date_of_joining,
-          department: $department,
-          employee_photo: $employee_photo
-        ) {
-          id
-          first_name
-          last_name
+      mutation AddEmployee($input: JSON!) {
+        addEmployee(input: $input) {
+          success
+          message
+          employee {
+            _id
+            first_name
+            last_name
+            email
+            gender
+            designation
+            salary
+            date_of_joining
+            department
+            employee_photo
+          }
         }
       }
     `;
-    return this.graphqlService.request(mutation, employee);
+    return this.graphqlService.request(mutation, { input: employee });
   }
 
-  updateEmployee(id: string, employee: any) {
+  updateEmployeeByEid(eid: string, employee: any) {
     const mutation = `
-      mutation UpdateEmployee(
-        $id: ID!,
-        $first_name: String!,
-        $last_name: String!,
-        $email: String!,
-        $gender: String!,
-        $designation: String!,
-        $salary: Float!,
-        $date_of_joining: String!,
-        $department: String!,
-        $employee_photo: String
-      ) {
-        updateEmployee(
-          id: $id,
-          first_name: $first_name,
-          last_name: $last_name,
-          email: $email,
-          gender: $gender,
-          designation: $designation,
-          salary: $salary,
-          date_of_joining: $date_of_joining,
-          department: $department,
-          employee_photo: $employee_photo
-        ) {
-          id
-          first_name
-          last_name
+      mutation UpdateEmployeeByEid($eid: ID!, $input: JSON!) {
+        updateEmployeeByEid(eid: $eid, input: $input) {
+          success
+          message
+          employee {
+            _id
+            first_name
+            last_name
+            email
+            gender
+            designation
+            salary
+            date_of_joining
+            department
+            employee_photo
+          }
         }
       }
     `;
-    return this.graphqlService.request(mutation, { id, ...employee });
+    return this.graphqlService.request(mutation, { eid, input: employee });
   }
 
-  deleteEmployee(id: string) {
+  deleteEmployeeByEid(eid: string) {
     const mutation = `
-      mutation DeleteEmployee($id: ID!) {
-        deleteEmployee(id: $id)
+      mutation DeleteEmployeeByEid($eid: ID!) {
+        deleteEmployeeByEid(eid: $eid) {
+          success
+          message
+          deletedId
+        }
       }
     `;
-    return this.graphqlService.request(mutation, { id });
+    return this.graphqlService.request(mutation, { eid });
   }
 
   searchEmployees(department?: string, designation?: string) {
     const query = `
-      query SearchEmployees($department: String, $designation: String) {
-        searchEmployees(department: $department, designation: $designation) {
-          id
-          first_name
-          last_name
-          email
-          gender
-          designation
-          salary
-          date_of_joining
-          department
-          employee_photo
+      query SearchEmployeeByDesignationOrDepartment($input: JSON!) {
+        searchEmployeeByDesignationOrDepartment(input: $input) {
+          success
+          message
+          employees {
+            _id
+            first_name
+            last_name
+            email
+            gender
+            designation
+            salary
+            date_of_joining
+            department
+            employee_photo
+          }
         }
       }
     `;
-    return this.graphqlService.request(query, { department, designation });
+
+    return this.graphqlService.request(query, {
+      input: {
+        department: department || '',
+        designation: designation || ''
+      }
+    });
   }
 }
