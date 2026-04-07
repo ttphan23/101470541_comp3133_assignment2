@@ -10,9 +10,6 @@ export class GraphqlService {
     try {
       const token = localStorage.getItem('token');
 
-      console.log('GraphQL URL:', environment.graphqlUrl);
-      console.log('GraphQL Variables:', variables);
-
       const response = await axios.post(
         environment.graphqlUrl,
         {
@@ -28,7 +25,6 @@ export class GraphqlService {
         }
       );
 
-      console.log('GraphQL Response:', response.data);
       return response.data;
     } catch (error: any) {
       console.error('GraphQL Error:', error);

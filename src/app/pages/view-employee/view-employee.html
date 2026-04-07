@@ -1,7 +1,7 @@
 <div class="container mt-4">
   <a routerLink="/employees" class="btn btn-secondary mb-3">Back</a>
 
-  <div *ngIf="loading">Loading employee details...</div>
+  <div *ngIf="loading" class="text-center py-4">Loading employee details...</div>
   <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
   <div class="card shadow p-4" *ngIf="employee">

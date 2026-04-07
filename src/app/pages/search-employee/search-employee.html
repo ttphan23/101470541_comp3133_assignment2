@@ -17,7 +17,7 @@
           <input class="form-control" formControlName="designation" placeholder="e.g. Developer" />
         </div>
 
-        <div class="col-md-2 mb-3 d-flex align-items-end gap-2">
+        <div class="col-md-2 mb-3 d-flex align-items-end">
           <button class="btn btn-primary w-100" type="submit" [disabled]="loading">
             {{ loading ? 'Searching...' : 'Search' }}
           </button>
@@ -29,8 +29,8 @@
 
     <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
 
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover" *ngIf="employees.length > 0">
+    <div class="table-responsive" *ngIf="employees.length > 0">
+      <table class="table table-bordered table-hover align-middle">
         <thead class="table-dark">
           <tr>
             <th>Photo</th>
@@ -43,7 +43,15 @@
         </thead>
         <tbody>
           <tr *ngFor="let emp of employees">
-            <td><img [src]="emp.employee_photo || 'https://via.placeholder.com/50'" width="50" height="50" class="rounded" /></td>
+            <td>
+              <img
+                [src]="emp.employee_photo || 'https://via.placeholder.com/50'"
+                width="50"
+                height="50"
+                class="rounded"
+                alt="Employee Photo"
+              />
+            </td>
             <td>{{ emp.first_name }} {{ emp.last_name }}</td>
             <td>{{ emp.email }}</td>
             <td>{{ emp.designation }}</td>
@@ -52,10 +60,10 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <div *ngIf="!loading && employees.length === 0" class="text-muted">
-        No search results yet.
-      </div>
+    <div *ngIf="!loading && !errorMessage && employees.length === 0" class="text-muted">
+      Enter a department or designation and click Search.
     </div>
   </div>
 </div>

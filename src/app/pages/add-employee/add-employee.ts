@@ -39,7 +39,7 @@ export class AddEmployeeComponent {
     return this.employeeForm.controls;
   }
 
-  async onSubmit() {
+  async onSubmit(): Promise<void> {
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -49,6 +49,7 @@ export class AddEmployeeComponent {
     }
 
     this.loading = true;
+
     try {
       const payload = {
         ...this.employeeForm.value,
@@ -57,19 +58,19 @@ export class AddEmployeeComponent {
 
       const result = await this.employeeService.addEmployee(payload);
 
-if (result.errors) {
-  this.errorMessage = result.errors[0]?.message || 'Failed to add employee.';
-  return;
-}
+      if (result?.errors) {
+        this.errorMessage = result.errors[0]?.message || 'Failed to add employee.';
+        return;
+      }
 
-if (result?.data?.addEmployee?.success) {
-  this.successMessage = result.data.addEmployee.message || 'Employee added successfully.';
-  setTimeout(() => this.router.navigate(['/employees']), 1200);
-} else {
-  this.errorMessage = result?.data?.addEmployee?.message || 'Failed to add employee.';
-}
-      this.successMessage = 'Employee added successfully.';
-      setTimeout(() => this.router.navigate(['/employees']), 1200);
+      if (result?.data?.addEmployee?.success) {
+        this.successMessage =
+          result.data.addEmployee.message || 'Employee added successfully.';
+        setTimeout(() => this.router.navigate(['/employees']), 1200);
+      } else {
+        this.errorMessage =
+          result?.data?.addEmployee?.message || 'Failed to add employee.';
+      }
     } catch (error) {
       this.errorMessage = 'Failed to add employee.';
     } finally {

@@ -22,14 +22,29 @@ export class ViewEmployeeComponent implements OnInit {
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) this.loadEmployee(id);
+    if (id) {
+      this.loadEmployee(id);
+    }
   }
 
-  async loadEmployee(id: string) {
+  async loadEmployee(id: string): Promise<void> {
     this.loading = true;
+    this.errorMessage = '';
+
     try {
       const result = await this.employeeService.getEmployeeById(id);
-      this.employee = result?.data?.searchEmployeeByEid?.employee;
+
+      if (result?.errors) {
+        this.errorMessage = result.errors[0]?.message || 'Failed to load employee details.';
+        return;
+      }
+
+      if (result?.data?.searchEmployeeByEid?.success) {
+        this.employee = result.data.searchEmployeeByEid.employee;
+      } else {
+        this.errorMessage =
+          result?.data?.searchEmployeeByEid?.message || 'Employee not found.';
+      }
     } catch (error) {
       this.errorMessage = 'Failed to load employee details.';
     } finally {
