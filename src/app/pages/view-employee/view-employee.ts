@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
@@ -18,13 +18,17 @@ export class ViewEmployeeComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private employeeService: EmployeeService,
-    private cdr: ChangeDetectorRef
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
+    console.log('route employee id:', id);
+
     if (id) {
       this.loadEmployee(id);
+    } else {
+      this.errorMessage = 'Employee ID not found.';
     }
   }
 
@@ -32,26 +36,31 @@ export class ViewEmployeeComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
     this.employee = null;
-    this.cdr.detectChanges();
 
     try {
       const result = await this.employeeService.getEmployeeById(id);
       console.log('view employee result:', result);
 
-      if (result?.errors) {
-        this.errorMessage = result.errors[0]?.message || 'Failed to load employee details.';
-      } else if (result?.data?.searchEmployeeByEid?.success) {
-        this.employee = result.data.searchEmployeeByEid.employee;
-      } else {
-        this.errorMessage =
-          result?.data?.searchEmployeeByEid?.message || 'Employee not found.';
-      }
+      this.ngZone.run(() => {
+        if (result?.errors) {
+          this.errorMessage =
+            result.errors[0]?.message || 'Failed to load employee details.';
+        } else if (result?.data?.searchEmployeeByEid?.success) {
+          this.employee = result.data.searchEmployeeByEid.employee;
+        } else {
+          this.errorMessage =
+            result?.data?.searchEmployeeByEid?.message || 'Employee not found.';
+        }
+
+        this.loading = false;
+      });
     } catch (error) {
       console.error('view employee error:', error);
-      this.errorMessage = 'Failed to load employee details.';
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
+
+      this.ngZone.run(() => {
+        this.errorMessage = 'Failed to load employee details.';
+        this.loading = false;
+      });
     }
   }
 }
