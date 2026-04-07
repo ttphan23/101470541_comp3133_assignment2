@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import axios from 'axios';
 import { environment } from '../../environments/environment';
 
@@ -6,11 +6,13 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class GraphqlService {
-  async request(query: string, variables: any = {}) {
-    try {
-      const token = localStorage.getItem('token');
+  constructor(private ngZone: NgZone) {}
 
-      const response = await axios.post(
+  request(query: string, variables: any = {}): Promise<any> {
+    const token = localStorage.getItem('token');
+
+    return new Promise((resolve, reject) => {
+      axios.post(
         environment.graphqlUrl,
         {
           query,
@@ -23,12 +25,14 @@ export class GraphqlService {
           },
           timeout: 10000
         }
-      );
-
-      return response.data;
-    } catch (error: any) {
-      console.error('GraphQL Error:', error);
-      throw error;
-    }
+      )
+      .then((response) => {
+        this.ngZone.run(() => resolve(response.data));
+      })
+      .catch((error) => {
+        console.error('GraphQL Error:', error);
+        this.ngZone.run(() => reject(error));
+      });
+    });
   }
 }
