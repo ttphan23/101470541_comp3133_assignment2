@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { EmployeeService } from '../../services/employee';
@@ -17,7 +17,8 @@ export class ViewEmployeeComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -30,25 +31,27 @@ export class ViewEmployeeComponent implements OnInit {
   async loadEmployee(id: string): Promise<void> {
     this.loading = true;
     this.errorMessage = '';
+    this.employee = null;
+    this.cdr.detectChanges();
 
     try {
       const result = await this.employeeService.getEmployeeById(id);
+      console.log('view employee result:', result);
 
       if (result?.errors) {
         this.errorMessage = result.errors[0]?.message || 'Failed to load employee details.';
-        return;
-      }
-
-      if (result?.data?.searchEmployeeByEid?.success) {
+      } else if (result?.data?.searchEmployeeByEid?.success) {
         this.employee = result.data.searchEmployeeByEid.employee;
       } else {
         this.errorMessage =
           result?.data?.searchEmployeeByEid?.message || 'Employee not found.';
       }
     } catch (error) {
+      console.error('view employee error:', error);
       this.errorMessage = 'Failed to load employee details.';
     } finally {
       this.loading = false;
+      this.cdr.detectChanges();
     }
   }
 }
